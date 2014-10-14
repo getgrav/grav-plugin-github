@@ -23,6 +23,16 @@ class GitHubPlugin extends Plugin
     }
 
     /**
+     * Initialize configuration
+     */
+    public function onPluginsInitialized()
+    {
+        if ($this->isAdmin()) {
+            $this->active = false;
+        }
+    }
+
+    /**
      * Add current directory to twig lookup paths.
      */
     public function onTwigTemplatePaths()
@@ -35,6 +45,7 @@ class GitHubPlugin extends Plugin
      */
     public function onPageInitialized()
     {
+
 
         $page = $this->grav['page'];
         if (!$page) {
