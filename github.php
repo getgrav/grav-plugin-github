@@ -45,8 +45,6 @@ class GitHubPlugin extends Plugin
      */
     public function onPageInitialized()
     {
-
-
         $page = $this->grav['page'];
         if (!$page) {
             return;
