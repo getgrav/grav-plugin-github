@@ -14,12 +14,27 @@ class GitHubPlugin extends Plugin
     /**
      * @return array
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return [
-            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
-            'onPageInitialized' => ['onPageInitialized', 0],
-            'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
+            'onPluginsInitialized' => ['onPluginsInitialized', 0]
         ];
+    }
+
+    /**
+     * Initialize configuration
+     */
+    public function onPluginsInitialized()
+    {
+        if ($this->isAdmin()) {
+            $this->active = false;
+            return;
+        }
+
+        $this->enable([
+            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
+            'onPageInitialized' => ['onPageInitialized', 0]
+        ]);
     }
 
     /**
@@ -35,7 +50,6 @@ class GitHubPlugin extends Plugin
      */
     public function onPageInitialized()
     {
-
         $page = $this->grav['page'];
         if (!$page) {
             return;
@@ -48,8 +62,14 @@ class GitHubPlugin extends Plugin
             require_once __DIR__ . '/classes/github.php';
             $this->github = new GitHub($page);
 
+            $this->enable([
+                'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
+            ]);
+
         }
     }
+
+
 
 
     /**
@@ -57,9 +77,6 @@ class GitHubPlugin extends Plugin
      */
     public function onTwigSiteVariables()
     {
-        if (!$this->active) {
-            return;
-        }
         // in Twig template: {{ github.client.api('repo').show('getgrav', 'grav')['stargazers_count'] }}
         $this->grav['twig']->twig_vars['github'] = $this->github;
     }
