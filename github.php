@@ -4,7 +4,6 @@ namespace Grav\Plugin;
 use Grav\Common\Plugin;
 use Grav\Common\Page\Page;
 use Grav\Common\Grav;
-use Tracy\Debugger;
 
 class GitHubPlugin extends Plugin
 {
