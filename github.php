@@ -80,10 +80,6 @@ class GitHubPlugin extends Plugin
                 $this->github->client->authenticate($token, $passwd, $method);
             }
 
-            $limits = $this->github->client->api('rateLimit')->getRateLimits();
-
-            var_dump($limits);
-
             $this->enable([
                 'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
             ]);
