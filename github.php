@@ -56,10 +56,33 @@ class GitHubPlugin extends Plugin
 
         if (isset($page->header()->github)) {
             $this->active = true;
+            $config = $this->grav['config'];
+
+            $method = $config->get('plugins.github.auth.method');
+            $token = $config->get('plugins.github.auth.token');
+            $passwd = $config->get('plugins.github.auth.password');
 
             // Initialize GitHub API Class
             require_once __DIR__ . '/classes/github.php';
             $this->github = new GitHub($page);
+
+            if ($method && $token) {
+                switch($method) {
+                    case 'api':
+                        $method = \Github\Client::AUTH_URL_TOKEN;
+                        $passwd = null;
+                        break;
+                    case 'password':
+                        $method = \Github\Client::AUTH_HTTP_PASSWORD;
+                        break;
+                }
+
+                $this->github->client->authenticate($token, $passwd, $method);
+            }
+
+            $limits = $this->github->client->api('rateLimit')->getRateLimits();
+
+            var_dump($limits);
 
             $this->enable([
                 'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
