@@ -1,5 +1,5 @@
 # v1.2.2
-## 12/08/2015
+## 12/11/2015
 
 1. [](#new)
     * New configuration settings for authentication, allowing to get past the 60/hr guest limit in favor of the 5000/hr authenticated limit
