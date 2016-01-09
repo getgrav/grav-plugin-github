@@ -80,22 +80,8 @@ class GitHubPlugin extends Plugin
                 $this->github->client->authenticate($token, $passwd, $method);
             }
 
-            $this->enable([
-                'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
-            ]);
+            $this->grav['twig']->twig_vars['github'] = $this->github;
 
         }
-    }
-
-
-
-
-    /**
-     * Make form accessible from twig.
-     */
-    public function onTwigSiteVariables()
-    {
-        // in Twig template: {{ github.client.api('repo').show('getgrav', 'grav')['stargazers_count'] }}
-        $this->grav['twig']->twig_vars['github'] = $this->github;
     }
 }
