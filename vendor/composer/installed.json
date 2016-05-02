@@ -98,17 +98,17 @@
     },
     {
         "name": "symfony/event-dispatcher",
-        "version": "v2.8.0",
-        "version_normalized": "2.8.0.0",
+        "version": "v2.8.4",
+        "version_normalized": "2.8.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/event-dispatcher.git",
-            "reference": "a5eb815363c0388e83247e7e9853e5dbc14999cc"
+            "reference": "47d2d8cade9b1c3987573d2943bb9352536cdb87"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/a5eb815363c0388e83247e7e9853e5dbc14999cc",
-            "reference": "a5eb815363c0388e83247e7e9853e5dbc14999cc",
+            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/47d2d8cade9b1c3987573d2943bb9352536cdb87",
+            "reference": "47d2d8cade9b1c3987573d2943bb9352536cdb87",
             "shasum": ""
         },
         "require": {
@@ -125,7 +125,7 @@
             "symfony/dependency-injection": "",
             "symfony/http-kernel": ""
         },
-        "time": "2015-10-30 20:15:42",
+        "time": "2016-03-07 14:04:32",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -160,17 +160,17 @@
     },
     {
         "name": "knplabs/github-api",
-        "version": "1.5.1",
-        "version_normalized": "1.5.1.0",
+        "version": "1.6.0",
+        "version_normalized": "1.6.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/KnpLabs/php-github-api.git",
-            "reference": "832b7be695ed2733741cd5c79166b4a88fb50786"
+            "reference": "5720f828ea241eded6c6263249fa00b0a37650f4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/832b7be695ed2733741cd5c79166b4a88fb50786",
-            "reference": "832b7be695ed2733741cd5c79166b4a88fb50786",
+            "url": "https://api.github.com/repos/KnpLabs/php-github-api/zipball/5720f828ea241eded6c6263249fa00b0a37650f4",
+            "reference": "5720f828ea241eded6c6263249fa00b0a37650f4",
             "shasum": ""
         },
         "require": {
@@ -179,16 +179,17 @@
             "php": ">=5.3.2"
         },
         "require-dev": {
-            "phpunit/phpunit": "~4.0"
+            "phpunit/phpunit": "~4.0",
+            "sllh/php-cs-fixer-styleci-bridge": "~1.3"
         },
         "suggest": {
             "knplabs/gaufrette": "Needed for optional Gaufrette cache"
         },
-        "time": "2015-10-11 02:38:28",
+        "time": "2016-02-24 05:52:33",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.4.x-dev"
+                "dev-master": "1.5.x-dev"
             }
         },
         "installation-source": "dist",
