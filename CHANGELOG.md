@@ -1,3 +1,10 @@
+# v1.3.0
+## 05/03/2016
+
+1. [](#improved)
+    * Updated GitHub API library to latest 1.6.0 release
+    * Add `github` object directly to Twig rather than via another event
+
 # v1.2.2
 ## 12/11/2015
 
