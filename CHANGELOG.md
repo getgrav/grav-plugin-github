@@ -1,3 +1,9 @@
+# v1.3.1
+## XX/XX/2018
+
+1. [](#improved)
+    * Updated GitHub API to latest 1.7.1 release
+
 # v1.3.0
 ## 05/03/2016
 
