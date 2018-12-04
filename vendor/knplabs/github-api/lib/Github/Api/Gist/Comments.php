@@ -3,13 +3,37 @@
 namespace Github\Api\Gist;
 
 use Github\Api\AbstractApi;
+use Github\Api\AcceptHeaderTrait;
 
 /**
  * @link   https://developer.github.com/v3/gists/comments/
+ *
  * @author Kayla Daniels <kayladnls@gmail.com>
  */
 class Comments extends AbstractApi
 {
+    use AcceptHeaderTrait;
+
+    /**
+     * Configure the body type.
+     *
+     * @link https://developer.github.com/v3/gists/comments/#custom-media-types
+     *
+     * @param string|null $bodyType
+     *
+     * @return self
+     */
+    public function configure($bodyType = null)
+    {
+        if (!in_array($bodyType, ['text', 'html', 'full'])) {
+            $bodyType = 'raw';
+        }
+
+        $this->acceptHeaderValue = sprintf('application/vnd.github.%s.%s+json', $this->client->getApiVersion(), $bodyType);
+
+        return $this;
+    }
+
     /**
      * Get all comments for a gist.
      *
@@ -19,7 +43,7 @@ class Comments extends AbstractApi
      */
     public function all($gist)
     {
-        return $this->get('gists/'.rawurlencode($gist).'/comments');
+        return $this->get('/gists/'.rawurlencode($gist).'/comments');
     }
 
     /**
@@ -32,7 +56,7 @@ class Comments extends AbstractApi
      */
     public function show($gist, $comment)
     {
-        return $this->get('gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
+        return $this->get('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
     }
 
     /**
@@ -45,7 +69,7 @@ class Comments extends AbstractApi
      */
     public function create($gist, $body)
     {
-        return $this->post('gists/'.rawurlencode($gist).'/comments', array('body' => $body));
+        return $this->post('/gists/'.rawurlencode($gist).'/comments', ['body' => $body]);
     }
 
     /**
@@ -59,7 +83,7 @@ class Comments extends AbstractApi
      */
     public function update($gist, $comment_id, $body)
     {
-        return $this->patch('gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment_id), array('body' => $body));
+        return $this->patch('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment_id), ['body' => $body]);
     }
 
     /**
@@ -72,6 +96,6 @@ class Comments extends AbstractApi
      */
     public function remove($gist, $comment)
     {
-        return $this->delete('gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
+        return $this->delete('/gists/'.rawurlencode($gist).'/comments/'.rawurlencode($comment));
     }
 }

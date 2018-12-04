@@ -3,10 +3,18 @@
 namespace Github;
 
 use Github\Api\ApiInterface;
-use Github\Exception\InvalidArgumentException;
 use Github\Exception\BadMethodCallException;
-use Github\HttpClient\HttpClient;
-use Github\HttpClient\HttpClientInterface;
+use Github\Exception\InvalidArgumentException;
+use Github\HttpClient\Builder;
+use Github\HttpClient\Plugin\Authentication;
+use Github\HttpClient\Plugin\GithubExceptionThrower;
+use Github\HttpClient\Plugin\History;
+use Github\HttpClient\Plugin\PathPrepend;
+use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\Plugin;
+use Http\Client\HttpClient;
+use Http\Discovery\UriFactoryDiscovery;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Simple yet very cool PHP GitHub client.
@@ -15,10 +23,16 @@ use Github\HttpClient\HttpClientInterface;
  * @method Api\CurrentUser me()
  * @method Api\Enterprise ent()
  * @method Api\Enterprise enterprise()
+ * @method Api\Miscellaneous\CodeOfConduct codeOfConduct()
+ * @method Api\Miscellaneous\Emojis emojis()
  * @method Api\GitData git()
  * @method Api\GitData gitData()
  * @method Api\Gists gist()
  * @method Api\Gists gists()
+ * @method Api\Miscellaneous\Gitignore gitignore()
+ * @method Api\Integrations integration() (deprecated)
+ * @method Api\Integrations integrations() (deprecated)
+ * @method Api\Apps apps()
  * @method Api\Issue issue()
  * @method Api\Issue issues()
  * @method Api\Markdown markdown()
@@ -26,6 +40,10 @@ use Github\HttpClient\HttpClientInterface;
  * @method Api\Notification notifications()
  * @method Api\Organization organization()
  * @method Api\Organization organizations()
+ * @method Api\Organization\Projects orgProject()
+ * @method Api\Organization\Projects orgProjects()
+ * @method Api\Organization\Projects organizationProject()
+ * @method Api\Organization\Projects organizationProjects()
  * @method Api\PullRequest pr()
  * @method Api\PullRequest pullRequest()
  * @method Api\PullRequest pullRequests()
@@ -42,6 +60,7 @@ use Github\HttpClient\HttpClientInterface;
  * @method Api\Authorizations authorization()
  * @method Api\Authorizations authorizations()
  * @method Api\Meta meta()
+ * @method Api\GraphQL graphql()
  *
  * @author Joseph Bielawski <stloyd@gmail.com>
  *
@@ -74,35 +93,66 @@ class Client
     const AUTH_HTTP_TOKEN = 'http_token';
 
     /**
-     * @var array
+     * Constant for authentication method. Indicates JSON Web Token
+     * authentication required for integration access to the API.
      */
-    private $options = array(
-        'base_url'    => 'https://api.github.com/',
-
-        'user_agent'  => 'php-github-api (http://github.com/KnpLabs/php-github-api)',
-        'timeout'     => 10,
-
-        'api_limit'   => 5000,
-        'api_version' => 'v3',
-
-        'cache_dir'   => null
-    );
+    const AUTH_JWT = 'jwt';
 
     /**
-     * The Buzz instance used to communicate with GitHub.
-     *
-     * @var HttpClient
+     * @var string
      */
-    private $httpClient;
+    private $apiVersion;
+
+    /**
+     * @var Builder
+     */
+    private $httpClientBuilder;
+
+    /**
+     * @var History
+     */
+    private $responseHistory;
 
     /**
      * Instantiate a new GitHub client.
      *
-     * @param null|HttpClientInterface $httpClient Github http client
+     * @param Builder|null $httpClientBuilder
+     * @param string|null  $apiVersion
+     * @param string|null  $enterpriseUrl
      */
-    public function __construct(HttpClientInterface $httpClient = null)
+    public function __construct(Builder $httpClientBuilder = null, $apiVersion = null, $enterpriseUrl = null)
     {
-        $this->httpClient = $httpClient;
+        $this->responseHistory = new History();
+        $this->httpClientBuilder = $builder = $httpClientBuilder ?: new Builder();
+
+        $builder->addPlugin(new GithubExceptionThrower());
+        $builder->addPlugin(new Plugin\HistoryPlugin($this->responseHistory));
+        $builder->addPlugin(new Plugin\RedirectPlugin());
+        $builder->addPlugin(new Plugin\AddHostPlugin(UriFactoryDiscovery::find()->createUri('https://api.github.com')));
+        $builder->addPlugin(new Plugin\HeaderDefaultsPlugin([
+            'User-Agent' => 'php-github-api (http://github.com/KnpLabs/php-github-api)',
+        ]));
+
+        $this->apiVersion = $apiVersion ?: 'v3';
+        $builder->addHeaderValue('Accept', sprintf('application/vnd.github.%s+json', $this->apiVersion));
+
+        if ($enterpriseUrl) {
+            $this->setEnterpriseUrl($enterpriseUrl);
+        }
+    }
+
+    /**
+     * Create a Github\Client using a HttpClient.
+     *
+     * @param HttpClient $httpClient
+     *
+     * @return Client
+     */
+    public static function createWithHttpClient(HttpClient $httpClient)
+    {
+        $builder = new Builder($httpClient);
+
+        return new self($builder);
     }
 
     /**
@@ -120,6 +170,9 @@ class Client
             case 'currentUser':
                 $api = new Api\CurrentUser($this);
                 break;
+            case 'codeOfConduct':
+                $api = new Api\Miscellaneous\CodeOfConduct($this);
+                break;
 
             case 'deployment':
             case 'deployments':
@@ -131,6 +184,10 @@ class Client
                 $api = new Api\Enterprise($this);
                 break;
 
+            case 'emojis':
+                $api = new Api\Miscellaneous\Emojis($this);
+                break;
+
             case 'git':
             case 'git_data':
             case 'gitData':
@@ -140,6 +197,19 @@ class Client
             case 'gist':
             case 'gists':
                 $api = new Api\Gists($this);
+                break;
+
+            case 'gitignore':
+                $api = new Api\Miscellaneous\Gitignore($this);
+                break;
+
+            case 'integration':
+            case 'integrations':
+                $api = new Api\Integrations($this);
+                break;
+
+            case 'apps':
+                $api = new Api\Apps($this);
                 break;
 
             case 'issue':
@@ -161,7 +231,19 @@ class Client
                 $api = new Api\Organization($this);
                 break;
 
+            case 'org_project':
+            case 'orgProject':
+            case 'org_projects':
+            case 'orgProjects':
+            case 'organization_project':
+            case 'organizationProject':
+            case 'organization_projects':
+            case 'organizationProjects':
+                $api = new Api\Organization\Projects($this);
+                break;
+
             case 'pr':
+            case 'pulls':
             case 'pullRequest':
             case 'pull_request':
             case 'pullRequests':
@@ -190,6 +272,11 @@ class Client
                 $api = new Api\Organization\Teams($this);
                 break;
 
+            case 'member':
+            case 'members':
+                $api = new Api\Organization\Members($this);
+                break;
+
             case 'user':
             case 'users':
                 $api = new Api\User($this);
@@ -202,6 +289,10 @@ class Client
 
             case 'meta':
                 $api = new Api\Meta($this);
+                break;
+
+            case 'graphql':
+                $api = new Api\GraphQL($this);
                 break;
 
             default:
@@ -226,16 +317,17 @@ class Client
             throw new InvalidArgumentException('You need to specify authentication method!');
         }
 
-        if (null === $authMethod && in_array($password, array(self::AUTH_URL_TOKEN, self::AUTH_URL_CLIENT_ID, self::AUTH_HTTP_PASSWORD, self::AUTH_HTTP_TOKEN))) {
+        if (null === $authMethod && in_array($password, [self::AUTH_URL_TOKEN, self::AUTH_URL_CLIENT_ID, self::AUTH_HTTP_PASSWORD, self::AUTH_HTTP_TOKEN, self::AUTH_JWT])) {
             $authMethod = $password;
-            $password   = null;
+            $password = null;
         }
 
         if (null === $authMethod) {
             $authMethod = self::AUTH_HTTP_PASSWORD;
         }
 
-        $this->getHttpClient()->authenticate($tokenOrLogin, $password, $authMethod);
+        $this->getHttpClientBuilder()->removePlugin(Authentication::class);
+        $this->getHttpClientBuilder()->addPlugin(new Authentication($tokenOrLogin, $password, $authMethod));
     }
 
     /**
@@ -243,84 +335,47 @@ class Client
      *
      * @param string $enterpriseUrl URL of the API in the form of http(s)://hostname
      */
-    public function setEnterpriseUrl($enterpriseUrl)
+    private function setEnterpriseUrl($enterpriseUrl)
     {
-        $baseUrl = (substr($enterpriseUrl, -1) == '/') ? substr($enterpriseUrl, 0, -1) : $enterpriseUrl;
-        $this->getHttpClient()->client->setBaseUrl($baseUrl . '/api/v3');
+        $builder = $this->getHttpClientBuilder();
+        $builder->removePlugin(Plugin\AddHostPlugin::class);
+        $builder->removePlugin(PathPrepend::class);
+
+        $builder->addPlugin(new Plugin\AddHostPlugin(UriFactoryDiscovery::find()->createUri($enterpriseUrl)));
+        $builder->addPlugin(new PathPrepend(sprintf('/api/%s', $this->getApiVersion())));
     }
 
     /**
-     * @return HttpClient
+     * @return string
      */
-    public function getHttpClient()
+    public function getApiVersion()
     {
-        if (null === $this->httpClient) {
-            $this->httpClient = new HttpClient($this->options);
-        }
-
-        return $this->httpClient;
+        return $this->apiVersion;
     }
 
     /**
-     * @param HttpClientInterface $httpClient
+     * Add a cache plugin to cache responses locally.
+     *
+     * @param CacheItemPoolInterface $cache
+     * @param array                  $config
      */
-    public function setHttpClient(HttpClientInterface $httpClient)
+    public function addCache(CacheItemPoolInterface $cachePool, array $config = [])
     {
-        $this->httpClient = $httpClient;
+        $this->getHttpClientBuilder()->addCache($cachePool, $config);
     }
 
     /**
-     * Clears used headers.
+     * Remove the cache plugin.
      */
-    public function clearHeaders()
+    public function removeCache()
     {
-        $this->getHttpClient()->clearHeaders();
-    }
-
-    /**
-     * @param array $headers
-     */
-    public function setHeaders(array $headers)
-    {
-        $this->getHttpClient()->setHeaders($headers);
+        $this->getHttpClientBuilder()->removeCache();
     }
 
     /**
      * @param string $name
      *
-     * @throws InvalidArgumentException
-     *
-     * @return mixed
-     */
-    public function getOption($name)
-    {
-        if (!array_key_exists($name, $this->options)) {
-            throw new InvalidArgumentException(sprintf('Undefined option called: "%s"', $name));
-        }
-
-        return $this->options[$name];
-    }
-
-    /**
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @throws InvalidArgumentException
-     * @throws InvalidArgumentException
-     */
-    public function setOption($name, $value)
-    {
-        if (!array_key_exists($name, $this->options)) {
-            throw new InvalidArgumentException(sprintf('Undefined option called: "%s"', $name));
-        }
-
-        $this->options[$name] = $value;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
      *
      * @return ApiInterface
      */
@@ -331,5 +386,29 @@ class Client
         } catch (InvalidArgumentException $e) {
             throw new BadMethodCallException(sprintf('Undefined method called: "%s"', $name));
         }
+    }
+
+    /**
+     * @return null|\Psr\Http\Message\ResponseInterface
+     */
+    public function getLastResponse()
+    {
+        return $this->responseHistory->getLastResponse();
+    }
+
+    /**
+     * @return HttpMethodsClient
+     */
+    public function getHttpClient()
+    {
+        return $this->getHttpClientBuilder()->getHttpClient();
+    }
+
+    /**
+     * @return Builder
+     */
+    protected function getHttpClientBuilder()
+    {
+        return $this->httpClientBuilder;
     }
 }

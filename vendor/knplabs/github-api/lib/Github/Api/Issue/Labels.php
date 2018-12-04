@@ -8,6 +8,7 @@ use Github\Exception\MissingArgumentException;
 
 /**
  * @link   http://developer.github.com/v3/issues/labels/
+ *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class Labels extends AbstractApi
@@ -16,6 +17,7 @@ class Labels extends AbstractApi
      * Get all labels for a repository or the labels for a specific issue.
      *
      * @link https://developer.github.com/v3/issues/labels/#list-labels-on-an-issue
+     *
      * @param string   $username
      * @param string   $repository
      * @param int|null $issue
@@ -25,25 +27,42 @@ class Labels extends AbstractApi
     public function all($username, $repository, $issue = null)
     {
         if ($issue === null) {
-            $path = 'repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels';
+            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels';
         } else {
-            $path = 'repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels';
+            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels';
         }
 
         return $this->get($path);
     }
 
     /**
+     * Get a single label.
+     *
+     * @link https://developer.github.com/v3/issues/labels/#get-a-single-label
+     *
+     * @param string $username
+     * @param string $repository
+     * @param string $label
+     *
+     * @return array
+     */
+    public function show($username, $repository, $label)
+    {
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels/'.rawurlencode($label));
+    }
+
+    /**
      * Create a label for a repository.
      *
      * @link https://developer.github.com/v3/issues/labels/#create-a-label
+     *
      * @param string $username
      * @param string $repository
      * @param array  $params
      *
-     * @return array
-     *
      * @throws \Github\Exception\MissingArgumentException
+     *
+     * @return array
      */
     public function create($username, $repository, array $params)
     {
@@ -54,13 +73,14 @@ class Labels extends AbstractApi
             $params['color'] = 'FFFFFF';
         }
 
-        return $this->post('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels', $params);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels', $params);
     }
 
     /**
      * Delete a label for a repository.
      *
      * @link https://developer.github.com/v3/issues/labels/#remove-a-label-from-an-issue
+     *
      * @param string $username
      * @param string $repository
      * @param string $label
@@ -69,13 +89,14 @@ class Labels extends AbstractApi
      */
     public function deleteLabel($username, $repository, $label)
     {
-        return $this->delete('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels/'.rawurlencode($label));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels/'.rawurlencode($label));
     }
 
     /**
-     * Edit a label for a repository
+     * Edit a label for a repository.
      *
      * @link https://developer.github.com/v3/issues/labels/#update-a-label
+     *
      * @param string $username
      * @param string $repository
      * @param string $label
@@ -86,18 +107,19 @@ class Labels extends AbstractApi
      */
     public function update($username, $repository, $label, $newName, $color)
     {
-        $params = array(
+        $params = [
             'name'  => $newName,
             'color' => $color,
-        );
+        ];
 
-        return $this->patch('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels/'.rawurlencode($label), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/labels/'.rawurlencode($label), $params);
     }
 
     /**
      * Add a label to an issue.
      *
      * @link https://developer.github.com/v3/issues/labels/#remove-a-label-from-an-issue
+     *
      * @param string $username
      * @param string $repository
      * @param int    $issue
@@ -110,18 +132,19 @@ class Labels extends AbstractApi
     public function add($username, $repository, $issue, $labels)
     {
         if (is_string($labels)) {
-            $labels = array($labels);
+            $labels = [$labels];
         } elseif (0 === count($labels)) {
             throw new InvalidArgumentException();
         }
 
-        return $this->post('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $labels);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $labels);
     }
 
     /**
      * Replace labels for an issue.
      *
      * @link https://developer.github.com/v3/issues/labels/#replace-all-labels-for-an-issue
+     *
      * @param string $username
      * @param string $repository
      * @param int    $issue
@@ -131,13 +154,14 @@ class Labels extends AbstractApi
      */
     public function replace($username, $repository, $issue, array $params)
     {
-        return $this->put('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $params);
+        return $this->put('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels', $params);
     }
 
     /**
-     * Remove a label for an issue
+     * Remove a label for an issue.
      *
      * @link https://developer.github.com/v3/issues/labels/#remove-a-label-from-an-issue
+     *
      * @param string $username
      * @param string $repository
      * @param string $issue
@@ -147,13 +171,14 @@ class Labels extends AbstractApi
      */
     public function remove($username, $repository, $issue, $label)
     {
-        return $this->delete('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels/'.rawurlencode($label));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels/'.rawurlencode($label));
     }
 
     /**
      * Remove all labels from an issue.
      *
      * @link https://developer.github.com/v3/issues/labels/#replace-all-labels-for-an-issue
+     *
      * @param string $username
      * @param string $repository
      * @param string $issue
@@ -162,6 +187,6 @@ class Labels extends AbstractApi
      */
     public function clear($username, $repository, $issue)
     {
-        return $this->delete('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels');
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/labels');
     }
 }

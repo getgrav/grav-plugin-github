@@ -6,6 +6,7 @@ namespace Github\Api;
  * Getting GitHub service information.
  *
  * @link   https://developer.github.com/v3/meta/
+ *
  * @author Claude Dioudonnat <claude.dioudonnat@gmail.com>
  */
 class Meta extends AbstractApi
@@ -17,6 +18,6 @@ class Meta extends AbstractApi
      */
     public function service()
     {
-        return $this->get('meta');
+        return $this->get('/meta');
     }
 }

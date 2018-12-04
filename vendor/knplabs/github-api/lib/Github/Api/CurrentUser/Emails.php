@@ -7,6 +7,7 @@ use Github\Exception\InvalidArgumentException;
 
 /**
  * @link   http://developer.github.com/v3/users/emails/
+ *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class Emails extends AbstractApi
@@ -20,7 +21,19 @@ class Emails extends AbstractApi
      */
     public function all()
     {
-        return $this->get('user/emails');
+        return $this->get('/user/emails');
+    }
+
+    /**
+     * List public email addresses for a user.
+     *
+     * @link https://developer.github.com/v3/users/emails/#list-public-email-addresses-for-a-user
+     *
+     * @return array
+     */
+    public function allPublic()
+    {
+        return $this->get('/user/public_emails');
     }
 
     /**
@@ -37,12 +50,12 @@ class Emails extends AbstractApi
     public function add($emails)
     {
         if (is_string($emails)) {
-            $emails = array($emails);
+            $emails = [$emails];
         } elseif (0 === count($emails)) {
             throw new InvalidArgumentException();
         }
 
-        return $this->post('user/emails', $emails);
+        return $this->post('/user/emails', $emails);
     }
 
     /**
@@ -59,11 +72,23 @@ class Emails extends AbstractApi
     public function remove($emails)
     {
         if (is_string($emails)) {
-            $emails = array($emails);
+            $emails = [$emails];
         } elseif (0 === count($emails)) {
             throw new InvalidArgumentException();
         }
 
-        return $this->delete('user/emails', $emails);
+        return $this->delete('/user/emails', $emails);
+    }
+
+    /**
+     * Toggle primary email visibility.
+     *
+     * @link https://developer.github.com/v3/users/emails/#toggle-primary-email-visibility
+     *
+     * @return array
+     */
+    public function toggleVisibility()
+    {
+        return $this->patch('/user/email/visibility');
     }
 }

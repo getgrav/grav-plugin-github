@@ -7,6 +7,7 @@ use Github\Exception\MissingArgumentException;
 
 /**
  * @link   http://developer.github.com/v3/git/references/
+ *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class References extends AbstractApi
@@ -21,7 +22,7 @@ class References extends AbstractApi
      */
     public function all($username, $repository)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs');
     }
 
     /**
@@ -34,7 +35,7 @@ class References extends AbstractApi
      */
     public function branches($username, $repository)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/heads');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/heads');
     }
 
     /**
@@ -47,7 +48,7 @@ class References extends AbstractApi
      */
     public function tags($username, $repository)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/tags');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/tags');
     }
 
     /**
@@ -63,7 +64,7 @@ class References extends AbstractApi
     {
         $reference = $this->encodeReference($reference);
 
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference);
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference);
     }
 
     /**
@@ -73,17 +74,17 @@ class References extends AbstractApi
      * @param string $repository
      * @param array  $params
      *
-     * @return array
-     *
      * @throws \Github\Exception\MissingArgumentException
+     *
+     * @return array
      */
     public function create($username, $repository, array $params)
     {
         if (!isset($params['ref'], $params['sha'])) {
-            throw new MissingArgumentException(array('ref', 'sha'));
+            throw new MissingArgumentException(['ref', 'sha']);
         }
 
-        return $this->post('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs', $params);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs', $params);
     }
 
     /**
@@ -94,9 +95,9 @@ class References extends AbstractApi
      * @param string $reference
      * @param array  $params
      *
-     * @return array
-     *
      * @throws \Github\Exception\MissingArgumentException
+     *
+     * @return array
      */
     public function update($username, $repository, $reference, array $params)
     {
@@ -106,7 +107,7 @@ class References extends AbstractApi
 
         $reference = $this->encodeReference($reference);
 
-        return $this->patch('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference, $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference, $params);
     }
 
     /**
@@ -122,7 +123,7 @@ class References extends AbstractApi
     {
         $reference = $this->encodeReference($reference);
 
-        return $this->delete('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference);
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/git/refs/'.$reference);
     }
 
     /**

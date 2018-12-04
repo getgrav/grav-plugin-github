@@ -10,6 +10,7 @@ use DateTime;
  * Important! You have to be authenticated to perform these methods
  *
  * @link   https://developer.github.com/v3/activity/notifications/
+ *
  * @author Dennis de Greef <github@link0.net>
  */
 class Notification extends AbstractApi
@@ -25,22 +26,27 @@ class Notification extends AbstractApi
      *
      * @return array array of notifications
      */
-    public function all($includingRead = false, $participating = false, DateTime $since = null)
+    public function all($includingRead = false, $participating = false, DateTime $since = null, DateTime $before = null)
     {
-        $parameters = array(
+        $parameters = [
             'all' => $includingRead,
-            'participating' => $participating
-        );
+            'participating' => $participating,
+        ];
 
         if ($since !== null) {
             $parameters['since'] = $since->format(DateTime::ISO8601);
         }
 
-        return $this->get('notifications', $parameters);
+        if ($before !== null) {
+            $parameters['before'] = $before->format(DateTime::ISO8601);
+        }
+
+        return $this->get('/notifications', $parameters);
     }
 
     /**
-     * Marks all notifications as read from the current date
+     * Marks all notifications as read from the current date.
+     *
      * Optionally give DateTime to mark as read before that date.
      *
      * @link https://developer.github.com/v3/activity/notifications/#mark-as-read
@@ -49,12 +55,36 @@ class Notification extends AbstractApi
      */
     public function markRead(DateTime $since = null)
     {
-        $parameters = array();
+        $parameters = [];
 
         if ($since !== null) {
             $parameters['last_read_at'] = $since->format(DateTime::ISO8601);
         }
 
-        $this->put('notifications', $parameters);
+        $this->put('/notifications', $parameters);
+    }
+
+    /**
+     * Mark a single thread as read using its ID.
+     *
+     * @link https://developer.github.com/v3/activity/notifications/#mark-a-thread-as-read
+     *
+     * @param int $id
+     */
+    public function markThreadRead($id)
+    {
+        $this->patch('/notifications/threads/'.$id);
+    }
+
+    /**
+     * Gets a single thread using its ID.
+     *
+     * @link https://developer.github.com/v3/activity/notifications/#view-a-single-thread
+     *
+     * @param int $id
+     */
+    public function id($id)
+    {
+        return $this->get('/notifications/threads/'.$id);
     }
 }

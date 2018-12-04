@@ -20,6 +20,13 @@ abstract class AbstractApi implements ApiInterface
     protected $client;
 
     /**
+     * The requested page (GitHub pagination).
+     *
+     * @var null|int
+     */
+    private $page;
+
+    /**
      * Number of items per page (GitHub pagination).
      *
      * @var null|int
@@ -36,6 +43,24 @@ abstract class AbstractApi implements ApiInterface
 
     public function configure()
     {
+    }
+
+    /**
+     * @return null|int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * @param null|int $page
+     */
+    public function setPage($page)
+    {
+        $this->page = (null === $page ? $page : (int) $page);
+
+        return $this;
     }
 
     /**
@@ -63,17 +88,25 @@ abstract class AbstractApi implements ApiInterface
      * @param array  $parameters     GET parameters.
      * @param array  $requestHeaders Request Headers.
      *
-     * @return \Guzzle\Http\EntityBodyInterface|mixed|string
+     * @return array|string
      */
-    protected function get($path, array $parameters = array(), $requestHeaders = array())
+    protected function get($path, array $parameters = [], array $requestHeaders = [])
     {
+        if (null !== $this->page && !isset($parameters['page'])) {
+            $parameters['page'] = $this->page;
+        }
         if (null !== $this->perPage && !isset($parameters['per_page'])) {
             $parameters['per_page'] = $this->perPage;
         }
         if (array_key_exists('ref', $parameters) && is_null($parameters['ref'])) {
             unset($parameters['ref']);
         }
-        $response = $this->client->getHttpClient()->get($path, $parameters, $requestHeaders);
+
+        if (count($parameters) > 0) {
+            $path .= '?'.http_build_query($parameters);
+        }
+
+        $response = $this->client->getHttpClient()->get($path, $requestHeaders);
 
         return ResponseMediator::getContent($response);
     }
@@ -85,17 +118,15 @@ abstract class AbstractApi implements ApiInterface
      * @param array  $parameters     HEAD parameters.
      * @param array  $requestHeaders Request headers.
      *
-     * @return \Guzzle\Http\Message\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function head($path, array $parameters = array(), $requestHeaders = array())
+    protected function head($path, array $parameters = [], array $requestHeaders = [])
     {
         if (array_key_exists('ref', $parameters) && is_null($parameters['ref'])) {
             unset($parameters['ref']);
         }
 
-        $response = $this->client->getHttpClient()->request($path, null, 'HEAD', $requestHeaders, array(
-            'query' => $parameters
-        ));
+        $response = $this->client->getHttpClient()->head($path.'?'.http_build_query($parameters), $requestHeaders);
 
         return $response;
     }
@@ -106,8 +137,10 @@ abstract class AbstractApi implements ApiInterface
      * @param string $path           Request path.
      * @param array  $parameters     POST parameters to be JSON encoded.
      * @param array  $requestHeaders Request headers.
+     *
+     * @return array|string
      */
-    protected function post($path, array $parameters = array(), $requestHeaders = array())
+    protected function post($path, array $parameters = [], array $requestHeaders = [])
     {
         return $this->postRaw(
             $path,
@@ -120,17 +153,17 @@ abstract class AbstractApi implements ApiInterface
      * Send a POST request with raw data.
      *
      * @param string $path           Request path.
-     * @param $body                     Request body.
+     * @param string $body           Request body.
      * @param array  $requestHeaders Request headers.
      *
-     * @return \Guzzle\Http\EntityBodyInterface|mixed|string
+     * @return array|string
      */
-    protected function postRaw($path, $body, $requestHeaders = array())
+    protected function postRaw($path, $body, array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->post(
             $path,
-            $body,
-            $requestHeaders
+            $requestHeaders,
+            $body
         );
 
         return ResponseMediator::getContent($response);
@@ -142,13 +175,15 @@ abstract class AbstractApi implements ApiInterface
      * @param string $path           Request path.
      * @param array  $parameters     POST parameters to be JSON encoded.
      * @param array  $requestHeaders Request headers.
+     *
+     * @return array|string
      */
-    protected function patch($path, array $parameters = array(), $requestHeaders = array())
+    protected function patch($path, array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->patch(
             $path,
-            $this->createJsonBody($parameters),
-            $requestHeaders
+            $requestHeaders,
+            $this->createJsonBody($parameters)
         );
 
         return ResponseMediator::getContent($response);
@@ -160,13 +195,15 @@ abstract class AbstractApi implements ApiInterface
      * @param string $path           Request path.
      * @param array  $parameters     POST parameters to be JSON encoded.
      * @param array  $requestHeaders Request headers.
+     *
+     * @return array|string
      */
-    protected function put($path, array $parameters = array(), $requestHeaders = array())
+    protected function put($path, array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->put(
             $path,
-            $this->createJsonBody($parameters),
-            $requestHeaders
+            $requestHeaders,
+            $this->createJsonBody($parameters)
         );
 
         return ResponseMediator::getContent($response);
@@ -178,13 +215,15 @@ abstract class AbstractApi implements ApiInterface
      * @param string $path           Request path.
      * @param array  $parameters     POST parameters to be JSON encoded.
      * @param array  $requestHeaders Request headers.
+     *
+     * @return array|string
      */
-    protected function delete($path, array $parameters = array(), $requestHeaders = array())
+    protected function delete($path, array $parameters = [], array $requestHeaders = [])
     {
         $response = $this->client->getHttpClient()->delete(
             $path,
-            $this->createJsonBody($parameters),
-            $requestHeaders
+            $requestHeaders,
+            $this->createJsonBody($parameters)
         );
 
         return ResponseMediator::getContent($response);

@@ -6,6 +6,7 @@ use Github\Api\AbstractApi;
 
 /**
  * @link   http://developer.github.com/v3/users/followers/
+ *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class Followers extends AbstractApi
@@ -21,9 +22,9 @@ class Followers extends AbstractApi
      */
     public function all($page = 1)
     {
-        return $this->get('user/following', array(
-            'page' => $page
-        ));
+        return $this->get('/user/following', [
+            'page' => $page,
+        ]);
     }
 
     /**
@@ -37,7 +38,7 @@ class Followers extends AbstractApi
      */
     public function check($username)
     {
-        return $this->get('user/following/'.rawurlencode($username));
+        return $this->get('/user/following/'.rawurlencode($username));
     }
 
     /**
@@ -51,7 +52,7 @@ class Followers extends AbstractApi
      */
     public function follow($username)
     {
-        return $this->put('user/following/'.rawurlencode($username));
+        return $this->put('/user/following/'.rawurlencode($username));
     }
 
     /**
@@ -65,6 +66,6 @@ class Followers extends AbstractApi
      */
     public function unfollow($username)
     {
-        return $this->delete('user/following/'.rawurlencode($username));
+        return $this->delete('/user/following/'.rawurlencode($username));
     }
 }
