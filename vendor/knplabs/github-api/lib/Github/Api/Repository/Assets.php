@@ -8,6 +8,7 @@ use Github\Exception\MissingArgumentException;
 
 /**
  * @link   http://developer.github.com/v3/repos/releases/
+ *
  * @author Evgeniy Guseletov <d46k16@gmail.com>
  */
 class Assets extends AbstractApi
@@ -24,7 +25,7 @@ class Assets extends AbstractApi
      */
     public function all($username, $repository, $id)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets');
     }
 
     /**
@@ -39,7 +40,7 @@ class Assets extends AbstractApi
      */
     public function show($username, $repository, $id)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
     }
 
     /**
@@ -73,13 +74,7 @@ class Assets extends AbstractApi
         // Asset creation requires a separate endpoint, uploads.github.com.
         // Change the base url for the HTTP client temporarily while we execute
         // this request.
-        $baseUrl = $this->client->getHttpClient()->client->getBaseUrl();
-        $this->client->getHttpClient()->client->setBaseUrl('https://uploads.github.com/');
-
-        $response = $this->postRaw('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets?name='.$name, $content, array('Content-Type' => $contentType));
-
-        // Reset the base url.
-        $this->client->getHttpClient()->client->setBaseUrl($baseUrl);
+        $response = $this->postRaw('https://uploads.github.com/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id).'/assets?name='.$name, $content, ['Content-Type' => $contentType]);
 
         return $response;
     }
@@ -103,7 +98,7 @@ class Assets extends AbstractApi
             throw new MissingArgumentException('name');
         }
 
-        return $this->patch('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id), $params);
     }
 
     /**
@@ -118,6 +113,6 @@ class Assets extends AbstractApi
      */
     public function remove($username, $repository, $id)
     {
-        return $this->delete('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/assets/'.rawurlencode($id));
     }
 }

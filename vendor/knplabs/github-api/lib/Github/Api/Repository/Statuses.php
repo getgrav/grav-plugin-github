@@ -7,6 +7,7 @@ use Github\Exception\MissingArgumentException;
 
 /**
  * @link   http://developer.github.com/v3/repos/statuses/
+ *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
 class Statuses extends AbstractApi
@@ -22,7 +23,7 @@ class Statuses extends AbstractApi
      */
     public function show($username, $repository, $sha)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha).'/statuses');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha).'/statuses');
     }
 
     /**
@@ -36,7 +37,7 @@ class Statuses extends AbstractApi
      */
     public function combined($username, $repository, $sha)
     {
-        return $this->get('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha).'/status');
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/commits/'.rawurlencode($sha).'/status');
     }
 
     /**
@@ -51,12 +52,12 @@ class Statuses extends AbstractApi
      *
      * @return array
      */
-    public function create($username, $repository, $sha, array $params = array())
+    public function create($username, $repository, $sha, array $params = [])
     {
         if (!isset($params['state'])) {
             throw new MissingArgumentException('state');
         }
 
-        return $this->post('repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/statuses/'.rawurlencode($sha), $params);
+        return $this->post('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/statuses/'.rawurlencode($sha), $params);
     }
 }
