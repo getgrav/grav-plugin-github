@@ -1,5 +1,5 @@
 # v2.0.0
-## XX/XX/2018
+## 12/07/2018
 
 1. [](#improved)
     * Updated GitHub API to latest 2.10 release
