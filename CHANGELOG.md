@@ -1,3 +1,9 @@
+# v2.0.1
+## mm/dd/yyyy
+
+1. [](#improved)
+    * Updated Vendor libraries for compatibility
+
 # v2.0.0
 ## 12/07/2018
 

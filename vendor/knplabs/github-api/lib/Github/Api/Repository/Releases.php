@@ -16,8 +16,8 @@ class Releases extends AbstractApi
     /**
      * Get the latest release.
      *
-     * @param $username
-     * @param $repository
+     * @param string $username
+     * @param string $repository
      *
      * @return array
      */
@@ -29,9 +29,9 @@ class Releases extends AbstractApi
     /**
      * List releases for a tag.
      *
-     * @param $username
-     * @param $repository
-     * @param $tag
+     * @param string $username
+     * @param string $repository
+     * @param string $tag
      *
      * @return array
      */
@@ -65,7 +65,7 @@ class Releases extends AbstractApi
      */
     public function show($username, $repository, $id)
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id));
+        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.$id);
     }
 
     /**
@@ -100,7 +100,7 @@ class Releases extends AbstractApi
      */
     public function edit($username, $repository, $id, array $params)
     {
-        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id), $params);
+        return $this->patch('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.$id, $params);
     }
 
     /**
@@ -114,7 +114,7 @@ class Releases extends AbstractApi
      */
     public function remove($username, $repository, $id)
     {
-        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.rawurlencode($id));
+        return $this->delete('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/releases/'.$id);
     }
 
     /**

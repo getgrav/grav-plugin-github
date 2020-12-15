@@ -26,7 +26,7 @@ class Events extends AbstractApi
     public function all($username, $repository, $issue = null, $page = 1)
     {
         if (null !== $issue) {
-            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.rawurlencode($issue).'/events';
+            $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/'.$issue.'/events';
         } else {
             $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/issues/events';
         }
@@ -41,9 +41,9 @@ class Events extends AbstractApi
      *
      * @link https://developer.github.com/v3/issues/events/#get-a-single-event
      *
-     * @param $username
-     * @param $repository
-     * @param $event
+     * @param string $username
+     * @param string $repository
+     * @param string $event
      *
      * @return array
      */

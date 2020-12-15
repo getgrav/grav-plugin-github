@@ -1,23 +1,29 @@
 # Change Log
 
-The change log describes what is "Added", "Removed", "Changed" or "Fixed" between each release. 
+The change log describes what is "Added", "Removed", "Changed" or "Fixed" between each release.
 
 ## UNRELEASED
 
+## 1.1.0
+
+### Added
+
+* Support for PHP 8
+
 ## 1.0.0
 
-No changes since 0.6.0
+* No changes since 0.6.0
 
 ## 0.6.0
 
 ### Added
 
-* Support for the new `TaggableCacheItemPoolInterface`. 
+* Support for the new `TaggableCacheItemPoolInterface`.
 * Support for PSR-16 SimpleCache
 
 ### Changed
 
-* The behavior of `CacheItem::getTags()` has changed. It will not return the tags stored in the cache storage. 
+* The behavior of `CacheItem::getTags()` has changed. It will not return the tags stored in the cache storage.
 
 ### Removed
 
@@ -33,4 +39,4 @@ No changes since 0.6.0
 
 ## 0.5.0
 
-No changelog before this version
+* No changelog before this version

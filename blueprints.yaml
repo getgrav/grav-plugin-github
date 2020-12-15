@@ -1,5 +1,5 @@
 name: GitHub
-version: 2.0.0
+version: 1.0.0
 description: "This plugin wraps the [GitHub v3 API](https://developer.github.com/v3/) and is compatible with [GitHub v4 GraphQL API](https://developer.github.com/v4/). Under the hood it uses [php-github-api](https://github.com/KnpLabs/php-github-api/) library to add a nice GitHub touch to your Grav pages."
 icon: github
 author:
