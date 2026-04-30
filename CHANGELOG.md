@@ -1,3 +1,9 @@
+# v2.0.1
+## 04/30/2026
+
+1. [](#improved)
+    * Updated bundled `clue/stream-filter` to v1.5.0+ so its functions are guarded with `function_exists()` — fixes `Cannot redeclare Clue\StreamFilter\append()` fatal when running alongside `mailersend` (or any other plugin with a newer copy of clue/stream-filter).
+
 # v2.0.0
 ## 12/07/2018
 

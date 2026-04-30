@@ -33,7 +33,7 @@ class Hooks extends AbstractApi
      */
     public function show($organization, $id)
     {
-        return $this->get('/orgs/'.rawurlencode($organization).'/hooks/'.rawurlencode($id));
+        return $this->get('/orgs/'.rawurlencode($organization).'/hooks/'.$id);
     }
 
     /**
@@ -76,7 +76,7 @@ class Hooks extends AbstractApi
             throw new MissingArgumentException(['config']);
         }
 
-        return $this->patch('/orgs/'.rawurlencode($organization).'/hooks/'.rawurlencode($id), $params);
+        return $this->patch('/orgs/'.rawurlencode($organization).'/hooks/'.$id, $params);
     }
 
     /**
@@ -87,11 +87,11 @@ class Hooks extends AbstractApi
      * @param string $organization
      * @param int    $id
      *
-     * @return null
+     * @return array|string
      */
     public function ping($organization, $id)
     {
-        return $this->post('/orgs/'.rawurlencode($organization).'/hooks/'.rawurlencode($id).'/pings');
+        return $this->post('/orgs/'.rawurlencode($organization).'/hooks/'.$id.'/pings');
     }
 
     /**
@@ -102,10 +102,10 @@ class Hooks extends AbstractApi
      * @param string $organization
      * @param int    $id
      *
-     * @return null
+     * @return array|string
      */
     public function remove($organization, $id)
     {
-        return $this->delete('/orgs/'.rawurlencode($organization).'/hooks/'.rawurlencode($id));
+        return $this->delete('/orgs/'.rawurlencode($organization).'/hooks/'.$id);
     }
 }

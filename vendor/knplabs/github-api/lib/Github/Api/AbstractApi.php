@@ -98,12 +98,12 @@ abstract class AbstractApi implements ApiInterface
         if (null !== $this->perPage && !isset($parameters['per_page'])) {
             $parameters['per_page'] = $this->perPage;
         }
-        if (array_key_exists('ref', $parameters) && is_null($parameters['ref'])) {
+        if (array_key_exists('ref', $parameters) && null === $parameters['ref']) {
             unset($parameters['ref']);
         }
 
         if (count($parameters) > 0) {
-            $path .= '?'.http_build_query($parameters);
+            $path .= '?'.http_build_query($parameters, '', '&', PHP_QUERY_RFC3986);
         }
 
         $response = $this->client->getHttpClient()->get($path, $requestHeaders);
@@ -122,13 +122,11 @@ abstract class AbstractApi implements ApiInterface
      */
     protected function head($path, array $parameters = [], array $requestHeaders = [])
     {
-        if (array_key_exists('ref', $parameters) && is_null($parameters['ref'])) {
+        if (array_key_exists('ref', $parameters) && null === $parameters['ref']) {
             unset($parameters['ref']);
         }
 
-        $response = $this->client->getHttpClient()->head($path.'?'.http_build_query($parameters), $requestHeaders);
-
-        return $response;
+        return $this->client->getHttpClient()->head($path.'?'.http_build_query($parameters, '', '&', PHP_QUERY_RFC3986), $requestHeaders);
     }
 
     /**

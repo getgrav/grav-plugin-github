@@ -2,6 +2,7 @@
 
 namespace Doctrine\Common\Cache;
 
+use Traversable;
 use function array_values;
 use function count;
 use function iterator_to_array;
@@ -14,14 +15,22 @@ class ChainCache extends CacheProvider
     /** @var CacheProvider[] */
     private $cacheProviders = [];
 
+    /** @var int */
+    private $defaultLifeTimeForDownstreamCacheProviders = 0;
+
     /**
      * @param CacheProvider[] $cacheProviders
      */
     public function __construct($cacheProviders = [])
     {
-        $this->cacheProviders = $cacheProviders instanceof \Traversable
+        $this->cacheProviders = $cacheProviders instanceof Traversable
             ? iterator_to_array($cacheProviders, false)
             : array_values($cacheProviders);
+    }
+
+    public function setDefaultLifeTimeForDownstreamCacheProviders(int $defaultLifeTimeForDownstreamCacheProviders) : void
+    {
+        $this->defaultLifeTimeForDownstreamCacheProviders = $defaultLifeTimeForDownstreamCacheProviders;
     }
 
     /**
@@ -47,7 +56,7 @@ class ChainCache extends CacheProvider
 
                 // We populate all the previous cache layers (that are assumed to be faster)
                 for ($subKey = $key - 1; $subKey >= 0; $subKey--) {
-                    $this->cacheProviders[$subKey]->doSave($id, $value);
+                    $this->cacheProviders[$subKey]->doSave($id, $value, $this->defaultLifeTimeForDownstreamCacheProviders);
                 }
 
                 return $value;
@@ -73,7 +82,7 @@ class ChainCache extends CacheProvider
             // We populate all the previous cache layers (that are assumed to be faster)
             if (count($fetchedValues) === $keysCount) {
                 foreach ($traversedProviders as $previousCacheProvider) {
-                    $previousCacheProvider->doSaveMultiple($fetchedValues);
+                    $previousCacheProvider->doSaveMultiple($fetchedValues, $this->defaultLifeTimeForDownstreamCacheProviders);
                 }
 
                 return $fetchedValues;

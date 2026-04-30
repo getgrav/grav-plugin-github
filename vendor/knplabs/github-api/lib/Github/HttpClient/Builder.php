@@ -10,7 +10,6 @@ use Http\Client\HttpClient;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\StreamFactoryDiscovery;
-use Http\Message\MessageFactory;
 use Http\Message\RequestFactory;
 use Http\Message\StreamFactory;
 use Psr\Cache\CacheItemPoolInterface;
@@ -38,7 +37,7 @@ class Builder
     private $pluginClient;
 
     /**
-     * @var MessageFactory
+     * @var RequestFactory
      */
     private $requestFactory;
 
@@ -62,7 +61,7 @@ class Builder
     /**
      * This plugin is special treated because it has to be the very last plugin.
      *
-     * @var Plugin\CachePlugin
+     * @var Plugin\CachePlugin|null
      */
     private $cachePlugin;
 
@@ -114,6 +113,8 @@ class Builder
      * Add a new plugin to the end of the plugin chain.
      *
      * @param Plugin $plugin
+     *
+     * @return void
      */
     public function addPlugin(Plugin $plugin)
     {
@@ -125,6 +126,8 @@ class Builder
      * Remove a plugin by its fully qualified class name (FQCN).
      *
      * @param string $fqcn
+     *
+     * @return void
      */
     public function removePlugin($fqcn)
     {
@@ -138,6 +141,8 @@ class Builder
 
     /**
      * Clears used headers.
+     *
+     * @return void
      */
     public function clearHeaders()
     {
@@ -149,6 +154,8 @@ class Builder
 
     /**
      * @param array $headers
+     *
+     * @return void
      */
     public function addHeaders(array $headers)
     {
@@ -161,6 +168,8 @@ class Builder
     /**
      * @param string $header
      * @param string $headerValue
+     *
+     * @return void
      */
     public function addHeaderValue($header, $headerValue)
     {
@@ -179,6 +188,8 @@ class Builder
      *
      * @param CacheItemPoolInterface $cachePool
      * @param array                  $config
+     *
+     * @return void
      */
     public function addCache(CacheItemPoolInterface $cachePool, array $config = [])
     {
@@ -191,6 +202,8 @@ class Builder
 
     /**
      * Remove the cache plugin.
+     *
+     * @return void
      */
     public function removeCache()
     {
